@@ -1,11 +1,14 @@
+import os
 from contextlib import asynccontextmanager
+from enum import Enum
 from typing import Any, Dict, Optional
 from fastapi import APIRouter, FastAPI, HTTPException
 import joblib
 import pandas as pd
 from pydantic import BaseModel, Field
-from enum import Enum
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "models", "pipe.joblib")
 
 
 class GenderEnum(str, Enum):
@@ -28,19 +31,19 @@ class CityEnum(str, Enum):
     KHULNA = "Khulna"
 
 
-
-
 ml_models: Dict[str, Any] = {}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        model_path = "api/models/pipe.joblib"
-        ml_models["customer_purchase"] = joblib.load(model_path)
-        print("Model 1 loaded")
-    except FileNotFoundError:
-        print("Warning: model 1 not found in directory.")
+    if os.path.exists(MODEL_PATH):
+        try:
+            ml_models["customer_purchase"] = joblib.load(MODEL_PATH)
+            print(f"Model 1 loaded successfully from {MODEL_PATH}")
+        except Exception as e:
+            print(f"Error loading joblib model: {e}")
+    else:
+        print(f"Warning: Model file not found at path: {MODEL_PATH}")
 
     yield
 
@@ -54,24 +57,23 @@ router = APIRouter(prefix="/api/v1")
 
 class CustomerPurchaseInput(BaseModel):
     Age: Optional[float] = Field(
-        None, gt=0, description="Customer age in years", example=32.0
+        None, gt=0, description="Customer age in years", json_schema_extra={"example": 32.0}
     )
     Salary: Optional[float] = Field(
-        None, ge=0, description="Annual salary", example=55000.0
+        None, ge=0, description="Annual salary", json_schema_extra={"example": 55000.0}
     )
     Experience: Optional[float] = Field(
-        None, ge=0, description="Years of work experience", example=5.0
+        None, ge=0, description="Years of work experience", json_schema_extra={"example": 5.0}
     )
-    City: Optional[str] = Field(
-        None, description="City name", example="Dhaka"
+    City: Optional[CityEnum] = Field(
+        None, description="City name", json_schema_extra={"example": "Dhaka"}
     )
-    Gender: Optional[str] = Field(
-        None, description="Gender", example="Male"
+    Gender: Optional[GenderEnum] = Field(
+        None, description="Gender", json_schema_extra={"example": "Male"}
     )
-    Education: Optional[str] = Field(
-        None, description="Highest degree attained", example="Bachelor"
+    Education: Optional[EducationEnum] = Field(
+        None, description="Highest degree attained", json_schema_extra={"example": "Bachelor"}
     )
-
 
 
 @router.post("/predict/purchase", tags=["Customer Analytics"])
@@ -79,11 +81,12 @@ def predict_purchase(data: CustomerPurchaseInput):
     model = ml_models.get("customer_purchase")
     if not model:
         raise HTTPException(
-            status_code=500, detail="Customer Purchase model is not loaded."
+            status_code=500, detail=f"Customer Purchase model is not loaded. Target path: {MODEL_PATH}"
         )
 
     try:
-        input_df = pd.DataFrame([data.model_dump()])
+        input_data = data.model_dump()
+        input_df = pd.DataFrame([input_data])
 
         prediction = model.predict(input_df)[0]
 
