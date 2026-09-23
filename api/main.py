@@ -7,8 +7,7 @@ import joblib
 import pandas as pd
 from pydantic import BaseModel, Field
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "pipe.joblib")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "pipe.joblib")
 
 
 class GenderEnum(str, Enum):
