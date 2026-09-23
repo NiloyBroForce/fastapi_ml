@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Multi-Model Prediction Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Navigation Header -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-gradient-to-tr from-brand-600 to-indigo-500 rounded-xl shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-brain text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none text-white">ML Hub</h1>
+                    <p class="text-xs text-slate-400 mt-1">Multi-Model Inference Portal</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    FastAPI Endpoint Active
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+
+        <!-- Model Navigation -->
+        <div class="grid grid-cols-1 gap-3">
+            <button onclick="switchTab('model1')" id="tab-model1"
+                class="tab-btn active p-4 rounded-xl border text-left transition-all bg-brand-600/10 border-brand-500 text-white shadow-lg shadow-brand-500/10">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="p-2 rounded-lg bg-brand-500/20 text-brand-400">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </span>
+                    <span
+                        class="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                        Active
+                    </span>
+                </div>
+                <div class="font-bold text-sm">Customer Purchase</div>
+                <div class="text-xs text-slate-400 mt-1">Classification Model</div>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <!-- Form Panels -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <div id="view-model1" class="tab-view bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 backdrop-blur">
+                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-4 mb-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-cart-shopping text-brand-500"></i> Model 1: Customer Purchase Predictor
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Scikit-Learn Pipeline (ColumnTransformer + DecisionTree)</p>
+                        </div>
+                        <span class="font-mono text-xs text-brand-400 bg-slate-900/80 px-2.5 py-1 rounded-md border border-slate-700">/api/v1/predict/purchase</span>
+                    </div>
+
+                    <form id="form-model1" onsubmit="handlePrediction(event, 'model1')" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <!-- Age -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Age</label>
+                                <input type="number" name="Age" min="1" max="100" value="32" oninput="updateJsonPreview('model1')" required
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            </div>
+
+                            <!-- Salary -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Salary ($)</label>
+                                <input type="number" name="Salary" min="0" step="1000" value="55000" oninput="updateJsonPreview('model1')" required
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            </div>
+
+                            <!-- Experience -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Experience (Yrs)</label>
+                                <input type="number" name="Experience" min="0" max="60" value="5" oninput="updateJsonPreview('model1')" required
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                            <!-- City Dropdown -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">City</label>
+                                <select name="City" onchange="updateJsonPreview('model1')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                                    <option value="Dhaka">Dhaka</option>
+                                    <option value="Chittagong">Chittagong</option>
+                                    <option value="Sylhet">Sylhet</option>
+                                    <option value="Rajshahi">Rajshahi</option>
+                                    <option value="Khulna">Khulna</option>
+                                </select>
+                            </div>
+
+                            <!-- Gender Dropdown -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Gender</label>
+                                <select name="Gender" onchange="updateJsonPreview('model1')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+
+                            <!-- Education Dropdown -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Education</label>
+                                <select name="Education" onchange="updateJsonPreview('model1')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                                    <option value="Bachelor">Bachelor</option>
+                                    <option value="Master">Master</option>
+                                    <option value="PhD">PhD</option>
+                                    <option value="High School">High School</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex items-center gap-3">
+                            <button type="submit" class="flex-1 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-bolt"></i> Run Prediction
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="view-model2" class="tab-view hidden bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 backdrop-blur">
+                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-4 mb-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-house text-emerald-400"></i> Model 2: Real Estate Housing Price
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Regression Pipeline</p>
+                        </div>
+                        <span class="font-mono text-xs text-brand-400 bg-slate-900/80 px-2.5 py-1 rounded-md border border-slate-700">/api/v1/predict/housing</span>
+                    </div>
+
+                    <form id="form-model2" onsubmit="handlePrediction(event, 'model2')" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Square Footage</label>
+                                <input type="number" name="sqft" min="100" value="1850" oninput="updateJsonPreview('model2')" required
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Bedrooms</label>
+                                <input type="number" name="bedrooms" min="1" value="3" oninput="updateJsonPreview('model2')" required
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-calculator"></i> Estimate Price
+                        </button>
+                    </form>
+                </div>
+
+                <div id="view-model3" class="tab-view hidden bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 backdrop-blur">
+                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-4 mb-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-user-slash text-amber-400"></i> Model 3: Customer Churn
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Binary Classification Model</p>
+                        </div>
+                        <span class="font-mono text-xs text-brand-400 bg-slate-900/80 px-2.5 py-1 rounded-md border border-slate-700">/api/v1/predict/churn</span>
+                    </div>
+
+                    <form id="form-model3" onsubmit="handlePrediction(event, 'model3')" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Tenure (Months)</label>
+                                <input type="number" name="tenure_months" min="0" value="12" oninput="updateJsonPreview('model3')" required
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Monthly Charges ($)</label>
+                                <input type="number" name="monthly_charges" min="0" value="65.50" step="0.5" oninput="updateJsonPreview('model3')" required
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-chart-line"></i> Predict Churn Risk
+                        </button>
+                    </form>
+                </div>
+
+                <div id="view-model4" class="tab-view hidden bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 backdrop-blur">
+                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-4 mb-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-landmark text-purple-400"></i> Model 4: Loan Eligibility Predictor
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Credit Risk Model</p>
+                        </div>
+                        <span class="font-mono text-xs text-brand-400 bg-slate-900/80 px-2.5 py-1 rounded-md border border-slate-700">/api/v1/predict/loan</span>
+                    </div>
+
+                    <form id="form-model4" onsubmit="handlePrediction(event, 'model4')" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Credit Score</label>
+                                <input type="number" name="credit_score" min="300" max="850" value="720" oninput="updateJsonPreview('model4')" required
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Loan Amount ($)</label>
+                                <input type="number" name="loan_amount" min="1000" value="25000" step="1000" oninput="updateJsonPreview('model4')" required
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-shield-cat"></i> Assess Loan Risk
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Live JSON Request Preview Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                            <i class="fa-solid fa-code text-brand-400 mr-1"></i> Live JSON Payload Preview
+                        </span>
+                        <button onclick="copyJsonPayload()" class="text-xs text-slate-400 hover:text-white transition flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> Copy JSON
+                        </button>
+                    </div>
+                    <pre id="jsonPreview" class="text-xs text-emerald-400 bg-slate-950 p-3 rounded-xl overflow-x-auto border border-slate-800/80">{}</pre>
+                </div>
+            </div>
+
+            <!-- Right Column: API Response & Prediction Output -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 backdrop-blur sticky top-24">
+                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-square-poll-vertical text-brand-500"></i> Model Output
+                        </h3>
+                        <div id="executionBadge" class="hidden text-xs font-mono px-2 py-0.5 rounded bg-slate-700 text-slate-300">
+                            0 ms
+                        </div>
+                    </div>
+
+                    <!-- Idle State -->
+                    <div id="idleResultState" class="py-12 text-center">
+                        <div class="w-12 h-12 rounded-full bg-slate-700/40 text-slate-500 flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-terminal text-lg"></i>
+                        </div>
+                        <p class="text-sm font-medium text-slate-300">No predictions executed yet</p>
+                        <p class="text-xs text-slate-500 max-w-xs mx-auto mt-1">Select your input values and click 'Run Prediction' to send a request to your model endpoint.</p>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loadingState" class="hidden py-12 text-center">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-500 border-t-transparent mb-3"></div>
+                        <p class="text-sm text-slate-300 font-medium">Running model inference...</p>
+                    </div>
+
+                    <!-- Prediction Success Display -->
+                    <div id="resultDisplay" class="hidden space-y-6">
+                        <div class="bg-slate-900/80 rounded-xl p-4 border border-slate-700/50 text-center">
+                            <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Prediction Output</div>
+                            <div id="primaryResultValue" class="text-3xl font-black text-white">--</div>
+                            <div id="secondaryResultBadge" class="inline-block mt-2 text-xs px-2.5 py-0.5 rounded-full font-medium bg-brand-500/20 text-brand-300 border border-brand-500/30">
+                                Success
+                            </div>
+                        </div>
+
+                        <!-- Probabilities Chart -->
+                        <div id="probabilitiesSection" class="hidden space-y-3">
+                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Class Probabilities</div>
+                            <div id="probabilitiesList" class="space-y-2"></div>
+                        </div>
+
+                        <!-- Raw JSON Response -->
+                        <div>
+                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Raw API Response</div>
+                            <pre id="rawJsonResponse" class="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl overflow-x-auto border border-slate-800 max-h-48">{}</pre>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="errorDisplay" class="hidden bg-rose-950/40 border border-rose-800/80 rounded-xl p-4 space-y-2">
+                        <div class="flex items-center gap-2 text-rose-400 text-sm font-bold">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Inference Error
+                        </div>
+                        <p id="errorMessage" class="text-xs text-rose-200">Could not connect to backend endpoint.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Model Endpoint Configurations (Using Relative Paths)
+        const modelEndpoints = {
+            model1: '/api/v1/predict/purchase',
+            model2: '/api/v1/predict/housing',
+            model3: '/api/v1/predict/churn',
+            model4: '/api/v1/predict/loan'
+        };
+
+        let currentTab = 'model1';
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            currentTab = tabId;
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600/10', 'border-brand-500', 'text-white', 'shadow-lg', 'shadow-brand-500/10');
+                btn.classList.add('border-slate-800', 'bg-slate-800/40', 'text-slate-400');
+            });
+
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.remove('border-slate-800', 'bg-slate-800/40', 'text-slate-400');
+            activeBtn.classList.add('bg-brand-600/10', 'border-brand-500', 'text-white', 'shadow-lg', 'shadow-brand-500/10');
+
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+            updateJsonPreview(tabId);
+        }
+
+        // Live JSON Preview Generator
+        function getFormData(tabId) {
+            const form = document.getElementById(`form-${tabId}`);
+            const formData = new FormData(form);
+            const data = {};
+
+            formData.forEach((value, key) => {
+                if (!isNaN(value) && value.trim() !== "") {
+                    data[key] = Number(value);
+                } else {
+                    data[key] = value;
+                }
+            });
+
+            return data;
+        }
+
+        function updateJsonPreview(tabId) {
+            const data = getFormData(tabId);
+            document.getElementById('jsonPreview').textContent = JSON.stringify(data, null, 2);
+        }
+
+        function copyJsonPayload() {
+            const jsonText = document.getElementById('jsonPreview').textContent;
+            document.execCommand('copy');
+            alert('JSON Payload copied to clipboard!');
+        }
+
+        async function handlePrediction(event, tabId) {
+            event.preventDefault();
+
+            const endpointPath = modelEndpoints[tabId];
+            const payload = getFormData(tabId);
+
+            const idleState = document.getElementById('idleResultState');
+            const loadingState = document.getElementById('loadingState');
+            const resultDisplay = document.getElementById('resultDisplay');
+            const errorDisplay = document.getElementById('errorDisplay');
+            const executionBadge = document.getElementById('executionBadge');
+
+            idleState.classList.add('hidden');
+            resultDisplay.classList.add('hidden');
+            errorDisplay.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+
+            const startTime = performance.now();
+
+            try {
+                // Call relative route directly
+                const response = await fetch(endpointPath, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+
+                const data = await response.json();
+
+                loadingState.classList.add('hidden');
+
+                if (!response.ok) {
+                    throw new Error(data.detail || `Server error ${response.status}`);
+                }
+
+                resultDisplay.classList.remove('hidden');
+                executionBadge.classList.remove('hidden');
+                executionBadge.textContent = `${duration} ms`;
+
+                const resultVal = data.prediction !== undefined ? data.prediction : (data.predicted_price || JSON.stringify(data));
+                document.getElementById('primaryResultValue').textContent = typeof resultVal === 'number' && !Number.isInteger(resultVal) 
+                    ? resultVal.toFixed(2) 
+                    : resultVal;
+
+                document.getElementById('secondaryResultBadge').textContent = data.model || 'Inference Successful';
+
+                const probsSection = document.getElementById('probabilitiesSection');
+                const probsList = document.getElementById('probabilitiesList');
+                probsList.innerHTML = '';
+
+                if (data.probabilities && typeof data.probabilities === 'object') {
+                    probsSection.classList.remove('hidden');
+                    Object.entries(data.probabilities).forEach(([cls, prob]) => {
+                        const percentage = Math.round(prob * 100);
+                        probsList.innerHTML += `
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-300 font-medium">Class ${cls}</span>
+                                    <span class="text-slate-400">${percentage}%</span>
+                                </div>
+                                <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+                                    <div class="bg-brand-500 h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    probsSection.classList.add('hidden');
+                }
+
+                document.getElementById('rawJsonResponse').textContent = JSON.stringify(data, null, 2);
+
+            } catch (err) {
+                loadingState.classList.add('hidden');
+                errorDisplay.classList.remove('hidden');
+                document.getElementById('errorMessage').textContent = err.message || 'Failed to communicate with endpoint.';
+            }
+        }
+
+        window.onload = function() {
+            updateJsonPreview('model1');
+        };
+    </script>
+</body>
+</html>
