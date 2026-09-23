@@ -35,7 +35,8 @@ ml_models: Dict[str, Any] = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        ml_models["customer_purchase"] = joblib.load("pipe.joblib")
+        model_path = "api/models/pipe.joblib"
+        ml_models["customer_purchase"] = joblib.load(model_path)
         print("Model 1 loaded")
     except FileNotFoundError:
         print("Warning: model 1 not found in directory.")
