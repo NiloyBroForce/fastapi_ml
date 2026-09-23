@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, FastAPI, HTTPException
 import joblib
 import pandas as pd
+from pydantic import BaseModel, Field
 from enum import Enum
 
 
